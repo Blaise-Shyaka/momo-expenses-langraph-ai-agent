@@ -1,98 +1,69 @@
-import json
 import requests
-import os
-from typing import TypedDict, List, Optional, Tuple
-from datetime import datetime
-from dotenv import load_dotenv
-from pydantic import BaseModel
+import json
+from os import environ
+from langgraph.graph import MessagesState, StateGraph, START
+from langgraph.prebuilt import ToolNode, tools_condition
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_core.messages import SystemMessage
+from typing import Optional
 
-load_dotenv()
+class ExpensesAgentState(MessagesState):
+  pass
 
-from langgraph.graph import StateGraph, START, END
-import google.generativeai as genai
+EXPENSES_API_URL = environ['EXPENSES_API_URL']
 
-genai.configure(api_key=os.environ['GOOGLE_API_KEY'])
-llm_model = genai.GenerativeModel('gemini-1.5-flash-latest', generation_config={"response_mime_type": "application/json"})
+# Let's define tools
+def get_all_expenses():
+  """It retrieves all expenses a user has recorded.
+    The number retrieved is just the first 100 entries.
+  """
+  url = EXPENSES_API_URL + "/expenses"
+  try:
+    response = requests.get(url)
+    return response.json()
+  except requests.exceptions.RequestException as e:
+    print(e.response.text)
 
-PROMPT = """
-You're an AI Agent responsible for recording a user's expenses. The user will send you a message and you will extract the following information this this message:{message}
-Return ONLY JSON with this format:
-- amount (float)
-- description (str)
-- category_name (str)
-- date (timestamp)
-"""
+def create_expense_category(name: str, description: Optional[str]):
+  """It creates an new expense category, if it doesn't alread exist. All expenses are recorded under a specific category
+    This helps to retrieve and record an expense category.
 
-class ExpenseDetails(BaseModel):
-    amount: float = None
-    description: str = None
-    category_name: str = None
-    date: str = datetime.today().timestamp()
+    Parameters:
+      name (str) - The category name
+      description (str) - The category description. It is optional.
+  """
+  url = EXPENSES_API_URL + "/categories"
+  payload = { "name": name, "description": description }
+  try:
+    response = requests.post(url, json==payload)
+    return response.json()
+  except requests.exceptions.RequestException as e:
+    print(e.response.text)
 
-class MessageState(TypedDict):
-    messages: List[dict]
-    expense: ExpenseDetails
-    api_response: Optional[dict]
+def get_all_categories():
+  """It retrieves all categories. It retrieves the first 100 entries."""
+  url = EXPENSES_API_URL + "/categories"
+  try:
+    response = requests.get(url)
+    return response.json()
+  except requests.exceptions.RequestException as e:
+    print(e.response.text)
 
-def add_user_message(state: MessageState) -> MessageState:
-    return {
-        "messages": state["messages"] + [{"role": "user", "content": "Hello, I spent $42.50 on groceries at Whole Foods yesterday"}],
-        "expense": ExpenseDetails(),
-        "api_response": None
-    }
+tools = [get_all_expenses, create_expense_category, get_all_categories]
 
-def extract_expense_details(state: MessageState) -> MessageState:
-    user_message = state["messages"][-1].get("content")
-    llm_model_response = llm_model.generate_content(PROMPT.format(message=user_message))
-    print("llm_model_response.text")
-    print(llm_model_response.text)
-    print(type(llm_model_response.text))
+gemini_llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0.5).bind_tools(tools)
+system_message = SystemMessage(content="You are an AI assistant tasked with being and expenses tracker for users. Your name is Reddington. You try to stick to the mission and avoid straying away from it. You have a friendly, playful, and respectful tone.")
+messages = [system_message]
 
-    try:
-        parsed_llm_model_response = json.loads(llm_model_response.text)
+def gemini_node(state: ExpensesAgentState):
+  return { "messages": gemini_llm.invoke(messages + state["messages"]) }
 
-        return {
-                "messages": state["messages"] + [{"role": 'AI Assistant', "content": "Successfully extracted your expenses"}],
-                "expense": ExpenseDetails.model_validate(parsed_llm_model_response),
-                "api_response": None
-            }
-    except json.decoder.JSONDecodeError:
-        print("Error decoding JSON")
-        return {
-            "messages": state["messages"] + [{"role": 'AI Assistant', "content": "Failed to extract your expenses. Can you try again?"}],
-            "expense": ExpenseDetails(),
-            "api_response": None
-        }
+graph = StateGraph(ExpensesAgentState)
 
-def record_expense(state: MessageState) -> MessageState:
-    expense = state["expense"]
+graph.add_node(gemini_node)
+graph.add_node("tools", ToolNode(tools))
 
-    try:
-        response = requests.post(os.environ['EXPENSES_API_URL'], json=expense.model_dump())
-        return {
-                "messages": state["messages"] + [{"role": 'AI Assistant', "content": "recorded expense successfully"}],
-                "expense": expense,
-                "api_response": response.json()
-            }
-    except requests.exceptions.RequestException as e:
-        print(e.response.text)
-        return {
-            "messages": state["messages"],
-            "expense": expense,
-            "api_response": None
-        }
-
-builder = StateGraph(MessageState)
-builder.add_node('add_user_message', add_user_message)
-builder.add_node('extract_expense_details', extract_expense_details)
-builder.add_node('record_expense', record_expense)
-
-builder.set_entry_point("add_user_message")
-builder.add_edge('add_user_message', 'extract_expense_details')
-builder.add_edge('extract_expense_details', 'record_expense')
-builder.add_edge('record_expense', END)
-
-agent = builder.compile()
-
-initial_state = MessageState(messages=[], expense=ExpenseDetails(), api_response=None)
-result = agent.invoke(initial_state)
+graph.add_edge(START, "gemini_node")
+graph.add_conditional_edges("gemini_node", tools_condition)
+graph.add_edge("tools", "gemini_node")
+graph.compile()
