@@ -35,7 +35,7 @@ def create_expense_category(name: str, description: Optional[str]):
   url = EXPENSES_API_URL + "/categories"
   payload = { "name": name, "description": description }
   try:
-    response = requests.post(url, json==payload)
+    response = requests.post(url, json=payload)
     return response.json()
   except requests.exceptions.RequestException as e:
     print(e.response.text)
