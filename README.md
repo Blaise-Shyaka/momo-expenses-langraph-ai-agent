@@ -18,6 +18,11 @@ The project currently consists of:
 
 The project consists of several components that need to be started individually. The project can only be run locally at the moment.
 
+Clone the repository:
+```shell
+git clone https://github.com/Blaise-Shyaka/momo-expenses-langraph-ai-agent.git
+```
+
 ---
 
 ### 1. API
