@@ -128,7 +128,7 @@ def read_category(category_id: int, db: Session = Depends(get_db)):
 
 @app.get("/categories/name/{name}", response_model=Category, tags=["Categories"])
 def read_category_by_name(name: str, db: Session = Depends(get_db)):
-    db_category = db.query(CategoryDB).filter(CategoryDB.name == name).first()
+    db_category = db.query(CategoryDB).filter(func.lower(CategoryDB.name) == name.lower()).first()
     if db_category is None:
         raise HTTPException(status_code=404, detail="Category not found")
     return db_category
@@ -138,7 +138,7 @@ def read_category_by_name(name: str, db: Session = Depends(get_db)):
 @app.post("/expenses/", response_model=Expense, tags=["Expenses"])
 def create_expense(expense: ExpenseCreate, db: Session = Depends(get_db)):
     # Check if category exists, if not create it
-    db_category = db.query(CategoryDB).filter(CategoryDB.name == expense.category_name).first()
+    db_category = db.query(CategoryDB).filter(func.lower(CategoryDB.name) == expense.category_name.lower()).first()
     if not db_category:
         db_category = CategoryDB(name=expense.category_name)
         db.add(db_category)
@@ -225,7 +225,7 @@ def get_expenses_since(
 
     # Apply category filter if provided
     if category_name:
-        query = query.join(CategoryDB).filter(CategoryDB.name == category_name)
+        query = query.join(CategoryDB).filter(func.lower(CategoryDB.name) == category_name.lower())
 
     total = query.scalar() or 0.0
 
@@ -239,4 +239,4 @@ def get_expenses_since(
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=8090)
+    uvicorn.run(app, host="0.0.0.0", port=8000)
