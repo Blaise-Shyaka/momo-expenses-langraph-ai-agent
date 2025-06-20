@@ -14,6 +14,75 @@ The project currently consists of:
 - **UI**: Next.js frontend with Assistant UI for chat interactions
 - **Database**: SQLite for storing expenses and categories
 
+## Running the Project Locally
+
+The project consists of several components that need to be started individually. The project can only be run locally at the moment.
+
+---
+
+### 1. API
+
+Handles business logic and writes expenses to a SQLite database.
+
+**Steps:**
+
+```bash
+cd expenses-api         # Navigate to the API directory
+pip install -r requirements.txt   # Install dependencies
+uvicorn main:app       # Start the API server
+```
+
+---
+
+### 2. LangGraph Agent
+
+Langgraph tool-calling agent.
+
+**Steps:**
+
+```bash
+cd expenses-agent         # Navigate to the agent directory
+pip install -r requirements.txt   # Install dependencies
+cp .env.example .env      # Copy environment example and update values
+langgraph dev             # Start the LangGraph agent
+```
+
+> 💡 Ensure all required API keys and environment variables are correctly set in `.env`.
+
+---
+
+### 3. UI
+
+The frontend interface you’ll use to interact with the agent. Runs at `http://localhost:3000`.
+
+**Steps:**
+
+```bash
+cd ui/momo-expenses-agent   # Navigate to the UI directory
+npm install                 # Install frontend dependencies
+touch .env                  # Create an environment file
+```
+
+Add the following environment variables to `.env` (replace `LANGCHAIN_API_KEY` with your actual key):
+
+```
+LANGGRAPH_API_URL=http://127.0.0.1:2024
+LANGCHAIN_API_KEY=ls...13
+NEXT_PUBLIC_LANGGRAPH_ASSISTANT_ID=chat
+```
+
+Then start the Next.js development server:
+
+```bash
+npm run dev
+```
+
+---
+
+### ✅ You’re Ready!
+
+With all services running, you can now interact with the agent through the local UI.
+
 ## 🗺️ Roadmap
 
 ### Phase 1: Payment Integration & Architecture Improvements 🔴
