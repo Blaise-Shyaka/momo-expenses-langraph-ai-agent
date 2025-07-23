@@ -15,25 +15,25 @@ Base = declarative_base()
 
 # Database models
 class CategoryDB(Base):
-    __tablename__ = "categories"
+  __tablename__ = "categories"
 
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, unique=True, index=True)
-    description = Column(String, nullable=True)
+  id = Column(Integer, primary_key=True, index=True)
+  name = Column(String, unique=True, index=True)
+  description = Column(String, nullable=True)
 
-    expenses = relationship("ExpenseDB", back_populates="category")
+  expenses = relationship("ExpenseDB", back_populates="category")
 
 
 class ExpenseDB(Base):
-    __tablename__ = "expenses"
+  __tablename__ = "expenses"
 
-    id = Column(Integer, primary_key=True, index=True)
-    amount = Column(Float)
-    description = Column(String, nullable=True)
-    date = Column(DateTime, default=datetime.now)
-    category_id = Column(Integer, ForeignKey("categories.id"))
+  id = Column(Integer, primary_key=True, index=True)
+  amount = Column(Float)
+  description = Column(String, nullable=True)
+  date = Column(DateTime, default=datetime.now)
+  category_id = Column(Integer, ForeignKey("categories.id"))
 
-    category = relationship("CategoryDB", back_populates="expenses")
+  category = relationship("CategoryDB", back_populates="expenses")
 
 
 # Create tables
@@ -42,57 +42,56 @@ Base.metadata.create_all(bind=engine)
 
 # Pydantic models for request/response
 class CategoryBase(BaseModel):
-    name: str
-    description: Optional[str] = None
+  name: str
+  description: Optional[str] = None
 
 
 class CategoryCreate(CategoryBase):
-    pass
+  pass
 
 
 class Category(CategoryBase):
-    id: int
+  id: int
 
-    class Config:
-        from_attributes = True
+  class Config:
+    from_attributes = True
 
 
 class ExpenseBase(BaseModel):
-    amount: float
-    description: Optional[str] = None
-    date: Optional[datetime] = Field(default_factory=datetime.now)
+  amount: float
+  description: Optional[str] = None
+  date: Optional[datetime] = Field(default_factory=datetime.now)
 
 
 class ExpenseCreate(ExpenseBase):
-    category_name: str
+  category_name: str
 
 
 class Expense(ExpenseBase):
-    id: int
-    category_id: int
+  id: int
+  category_id: int
 
-    class Config:
-        from_attributes = True
-
+  class Config:
+    from_attributes = True
 
 class ExpenseWithCategory(Expense):
-    category: Category
+  category: Category
 
-    class Config:
-        from_attributes = True
+  class Config:
+    from_attributes = True
 
 
 class CategoryWithTotal(Category):
-    total_expenses: float
+  total_expenses: float
 
 
 # Dependency to get DB session
 def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+  db = SessionLocal()
+  try:
+    yield db
+  finally:
+    db.close()
 
 
 app = FastAPI(title="Expenses Tracker API")
