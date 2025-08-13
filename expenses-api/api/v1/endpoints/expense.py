@@ -1,23 +1,25 @@
 from fastapi import APIRouter, HTTPException, Depends
 from schemas.schema import Expense, ExpenseCreate, ExpenseWithCategory, CategoryWithTotal
 from db.models import ExpenseDB, CategoryDB
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List, Optional
 from api.deps import get_db
 from sqlalchemy import select, func
+from sqlalchemy.orm import selectinload
 from datetime import datetime, timedelta
 
 router = APIRouter()
 
-@router.post("/expenses/", response_model=Expense, tags=["Expenses"])
-async def create_expense(expense: ExpenseCreate, db: Session = Depends(get_db)):
+@router.post("/", response_model=Expense, tags=["Expenses"])
+async def create_expense(expense: ExpenseCreate, db: AsyncSession = Depends(get_db)):
     category_stmt = select(CategoryDB).where(func.lower(CategoryDB.name) == expense.category_name.lower())
-    db_category = await db.execute(category_stmt).scalars().first()
+    result = await db.execute(category_stmt)
+    db_category = result.scalars().first()
     if not db_category:
         db_category = CategoryDB(name=expense.category_name)
-        await db.add(db_category)
+        db.add(db_category)
         await db.commit()
-        db.refresh(db_category)
+        await db.refresh(db_category)
 
     # Create expense
     db_expense = ExpenseDB(
@@ -26,38 +28,37 @@ async def create_expense(expense: ExpenseCreate, db: Session = Depends(get_db)):
         date=expense.date,
         category_id=db_category.id
     )
-    await db.add(db_expense)
+    db.add(db_expense)
     await db.commit()
     await db.refresh(db_expense)
     return db_expense
 
+@router.get("/{expense_id}", response_model=ExpenseWithCategory, tags=["Expenses"])
+async def read_expense(expense_id: int, db: AsyncSession = Depends(get_db)):
+    expense_stmt = select(ExpenseDB).options(selectinload(ExpenseDB.category)).where(ExpenseDB.id == expense_id)
+    result = await db.execute(expense_stmt)
+    expense = result.scalars().first()
+    if expense is None:
+        raise HTTPException(status_code=404, detail="Expense not found")
+    return expense
 
 @router.get("/", response_model=List[ExpenseWithCategory], tags=["Expenses"])
 async def read_expenses(
         skip: int = 0,
         limit: int = 100,
         category_name: Optional[str] = None,
-        db: Session = Depends(get_db)
+        db: AsyncSession = Depends(get_db)
 ):
-    expense_stmt = select(ExpenseDB)
+    expense_stmt = select(ExpenseDB).options(selectinload(ExpenseDB.category))
     if category_name:
         expense_stmt = expense_stmt.join(CategoryDB).filter(func.lower(CategoryDB.name) == category_name.lower()).offset(skip).limit(limit)
 
-    expenses = await db.execute(expense_stmt)
-    return expenses.scalars().all()
-
-
-@router.get("/{expense_id}", response_model=ExpenseWithCategory, tags=["Expenses"])
-async def read_expense(expense_id: int, db: Session = Depends(get_db)):
-    expense_stmt = select(ExpenseDB).where(ExpenseDB.id == expense_id)
-    expense = await db.execute(expense_stmt).scalars().first()
-    if expense is None:
-        raise HTTPException(status_code=404, detail="Expense not found")
-    return expense
+    result = await db.execute(expense_stmt)
+    return result.scalars().all()
 
 
 @router.get("/totals/by-category", response_model=List[CategoryWithTotal], tags=["Reports"])
-async def get_expenses_by_category(db: Session = Depends(get_db)):
+async def get_expenses_by_category(db: AsyncSession = Depends(get_db)):
     expense_by_category_stmt = select(CategoryDB, func.sum(ExpenseDB.amount).label("total_expenses")).join(ExpenseDB, CategoryDB.id == ExpenseDB.category_id).group_by(CategoryDB.id)
     # results = (
     #     await db.query(
@@ -68,7 +69,8 @@ async def get_expenses_by_category(db: Session = Depends(get_db)):
     #     .group_by(CategoryDB.id)
     #     .all()
     # )
-    result = await db.execute(expense_by_category_stmt).scalars().all()
+    result = await db.execute(expense_by_category_stmt)
+    results = result.all()  # Get tuples of (CategoryDB, total)
 
     return [
         CategoryWithTotal(
@@ -77,7 +79,7 @@ async def get_expenses_by_category(db: Session = Depends(get_db)):
             description=category.description,
             total_expenses=total or 0.0
         )
-        for category, total in result
+        for category, total in results
     ]
 
 
@@ -86,9 +88,9 @@ async def get_expenses_since(
         days: Optional[int] = None,
         start_date: Optional[datetime] = None,
         category_name: Optional[str] = None,
-        db: Session = Depends(get_db)
+        db: AsyncSession = Depends(get_db)
 ):
-    # Calculate the start date if days is provided
+   
     if days is not None and start_date is None:
         start_date = datetime.now() - timedelta(days=days)
     elif start_date is None:
@@ -101,7 +103,8 @@ async def get_expenses_since(
     if category_name:
         expense_stmt = expense_stmt.join(CategoryDB).filter(func.lower(CategoryDB.name) == category_name.lower())
 
-    total = await db.execute(expense_stmt).scalar() or 0.0
+    result = await db.execute(expense_stmt)
+    total = result.scalar() or 0.0
 
     return {
         "start_date": start_date,
