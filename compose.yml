@@ -1,0 +1,43 @@
+services:
+  expenses-api:
+    build: ./expenses-api
+    ports:
+      - 8000:52
+    depends_on:
+      expenses-api-db:
+        condition: service_healthy
+    env_file:
+      - ./expenses-api/.env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:52/docs"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    develop:
+      watch:
+        - action: rebuild
+          path: ./expenses-api
+  migration:
+    build: ./expenses-api
+    command: alembic upgrade head
+    depends_on:
+      expenses-api-db:
+        condition: service_healthy
+    env_file:
+      - ./expenses-api/.env
+  expenses-api-db:
+    image: mysql
+    env_file:
+      - ./expenses-api/.env
+    restart: always
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+volumes:
+  mysql-data:

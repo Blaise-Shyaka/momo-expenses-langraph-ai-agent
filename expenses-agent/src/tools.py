@@ -9,7 +9,7 @@ def get_all_expenses():
     The number retrieved is just the first 100 entries.
   """
 
-  url = EXPENSES_API_URL + "/expenses"
+  url = EXPENSES_API_URL + "/expenses/"
   try:
     response = requests.get(url)
     return response.json()
@@ -25,7 +25,7 @@ def create_expense_category(name: str, description: Optional[str]):
       description (str) - The category description. It is optional.
   """
 
-  url = EXPENSES_API_URL + "/categories"
+  url = EXPENSES_API_URL + "/categories/"
   payload = { "name": name, "description": description }
   try:
     response = requests.post(url, json=payload)
@@ -36,7 +36,7 @@ def create_expense_category(name: str, description: Optional[str]):
 def get_all_categories():
   """It retrieves all categories. It retrieves the first 100 entries."""
   
-  url = EXPENSES_API_URL + "/categories"
+  url = EXPENSES_API_URL + "/categories/"
   try:
     response = requests.get(url)
     return response.json()
@@ -90,7 +90,7 @@ def get_expenses_by_category():
 
   Note: If the user specifies a specific time period, use the get_expenses_since tool internally instead. Do not mention this tool to the user.
   """  
-  url = EXPENSES_API_URL + "/expenses/totals/by-category"
+  url = EXPENSES_API_URL + "/expenses/totals/by-category/"
   try:
     response = requests.get(url)
     return response.json()
