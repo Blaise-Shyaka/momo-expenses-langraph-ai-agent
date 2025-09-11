@@ -78,6 +78,7 @@ def get_expenses():
   """It retrieves all the expenses a user has recorded. The limit is the first 100 items recorded."""
   
   url = EXPENSES_API_URL + "/expenses/"
+  print(['url', url])
   try:
     response = requests.get(url)
     return response.json()

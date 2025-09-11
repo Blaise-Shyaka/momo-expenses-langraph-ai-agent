@@ -8,6 +8,7 @@ RUN apt-get update \
     libssl-dev \
     libffi-dev \
     build-essential \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /code

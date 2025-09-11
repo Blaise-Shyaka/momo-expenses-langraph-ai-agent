@@ -8,6 +8,7 @@ services:
         condition: service_healthy
     env_file:
       - ./expenses-api/.env
+    restart: always
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:52/docs"]
       interval: 30s
@@ -18,6 +19,28 @@ services:
       watch:
         - action: rebuild
           path: ./expenses-api
+  expenses-agent:
+    build: ./expenses-agent
+    ports:
+      - 8123:8123
+    env_file:
+      - ./expenses-agent/.env
+    environment:
+      # Ensure the agent can reach the API via the compose network service name
+      - EXPENSES_API_URL=http://expenses-api:52/api/v1
+    depends_on:
+      expenses-api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8123/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    develop:
+      watch:
+        - action: rebuild
+          path: ./expenses-agent
   migration:
     build: ./expenses-api
     command: alembic upgrade head
