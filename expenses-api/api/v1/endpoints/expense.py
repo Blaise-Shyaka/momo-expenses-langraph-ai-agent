@@ -49,7 +49,6 @@ async def read_expenses(
         category_name: Optional[str] = None,
         db: AsyncSession = Depends(get_db)
 ):
-    print('Helloooooo ... You hit the API')
     expense_stmt = select(ExpenseDB).options(selectinload(ExpenseDB.category))
     if category_name:
         expense_stmt = expense_stmt.join(CategoryDB).filter(func.lower(CategoryDB.name) == category_name.lower()).offset(skip).limit(limit)
@@ -57,14 +56,11 @@ async def read_expenses(
     result = await db.execute(expense_stmt)
     return result.scalars().all()
 
-
 @router.get("/totals/by-category", response_model=List[CategoryWithTotal], tags=["Reports"])
 async def get_expenses_by_category(db: AsyncSession = Depends(get_db)):
     expense_by_category_stmt = select(CategoryDB, func.sum(ExpenseDB.amount).label("total_expenses")).join(ExpenseDB, CategoryDB.id == ExpenseDB.category_id).group_by(CategoryDB.id)
     result = await db.execute(expense_by_category_stmt)
-    results = result.all()  # Get tuples of (CategoryDB, total)
-    readable_string = ', '.join(map(str, results))
-    print(readable_string)
+    results = result.all()
 
     return [
         CategoryWithTotal(

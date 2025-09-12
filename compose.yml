@@ -26,7 +26,6 @@ services:
     env_file:
       - ./expenses-agent/.env
     environment:
-      # Ensure the agent can reach the API via the compose network service name
       - EXPENSES_API_URL=http://expenses-api:52/api/v1
     depends_on:
       expenses-api:

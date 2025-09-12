@@ -10,8 +10,8 @@ export default function Home() {
         defaultOpen={true}
         clickOutsideToClose={false}
         labels={{
-          title: "Travel Planner",
-          initial: "Hi! 👋 I'm here to plan your trips. I can help you manage your trips, add places to them, or just generally work with you to plan a new one.",
+          title: "Expenses Tracker",
+          initial: "Hi! 👋 I'm Reddington. I can help you log your expenses, categorize them by category type, and get reports.",
         }}
       />
       <div>Hi</div>
