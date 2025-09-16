@@ -17,9 +17,6 @@ async def create_category(category: CategoryCreate, db: AsyncSession = Depends(g
         raise HTTPException(status_code=400, detail="Category already exists")
 
     category.name = category.name.lower()
-    print("category", category)
-    print("category dumped", category.model_dump())
-    print("categorydb initialized", CategoryDB(**category.model_dump()))
     db_category = CategoryDB(**category.model_dump())
     db.add(db_category)
     await db.commit()
