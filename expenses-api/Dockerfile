@@ -1,13 +1,8 @@
-FROM python:3-slim
+FROM python:3
 
-# Add build dependencies, for the cryptography package
+# Adding curl to help me do a healthcheck
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-    gcc \
-    libmariadb-dev \
-    libssl-dev \
-    libffi-dev \
-    build-essential \
     curl \
     && rm -rf /var/lib/apt/lists/*
 

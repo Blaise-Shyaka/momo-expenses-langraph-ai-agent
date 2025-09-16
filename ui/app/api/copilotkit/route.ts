@@ -7,10 +7,12 @@ import {
 import { NextRequest } from 'next/server';
 
 const serviceAdapter = new GoogleGenerativeAIAdapter({ model: 'gemini-2.0-flash' });
+const deploymentUrl = process.env.AGENT_URL || ""
+console.log('deploymentUrl', deploymentUrl)
 const runtime = new CopilotRuntime({
   agents: { 
     'chat': new LangGraphAgent({
-      deploymentUrl: "http://localhost:8123",
+      deploymentUrl,
       graphId: 'chat',
     }),
   },
