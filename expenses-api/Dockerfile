@@ -1,4 +1,4 @@
-FROM python:3
+FROM python:3.13
 
 # Adding curl to help me do a healthcheck
 RUN apt-get update \
