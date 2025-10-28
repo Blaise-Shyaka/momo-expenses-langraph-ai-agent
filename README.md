@@ -36,7 +36,7 @@ cp .env.example .env
 Back in the project root directory, run:
 
 ```bash
-docker compose --build up
+docker compose up --build
 ```
 
 ### 4. Access the App
