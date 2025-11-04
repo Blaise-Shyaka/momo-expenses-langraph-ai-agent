@@ -1,5 +1,5 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, func, DateTime
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, String, Float, ForeignKey, DateTime
+from sqlalchemy.orm import relationship, Mapped, mapped_column
 from sqlalchemy.types import BINARY
 from db.base import BaseModel
 from datetime import datetime
@@ -26,7 +26,7 @@ class CategoryDB(BaseModel):
 class ExpenseDB(BaseModel):
   __tablename__ = "expenses"
 
-  amount = Column(Float)
+  amount: Mapped[float] = mapped_column(Float)
   description = Column(String(500), nullable=True)
   date = Column(DateTime, default=datetime.now)
   category_id = Column(BINARY(16), ForeignKey("categories.id"))

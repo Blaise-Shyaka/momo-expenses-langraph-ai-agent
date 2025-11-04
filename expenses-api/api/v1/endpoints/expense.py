@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends
-from schemas.schema import Expense, ExpenseCreate, ExpenseWithCategory, CategoryWithTotal
+from schemas.schema import Expense, ExpenseCreate, ExpenseWithCategory, CategoryWithTotal, ExpenseSince
 from db.models import ExpenseDB, CategoryDB
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List, Optional
@@ -75,29 +75,23 @@ async def get_expenses_by_category(db: AsyncSession = Depends(get_db)):
 
 @router.get("/totals/since", tags=["Reports"])
 async def get_expenses_since(
-        days: Optional[int] = None,
-        start_date: Optional[datetime] = None,
-        category_name: Optional[str] = None,
+        payload: ExpenseSince,
         db: AsyncSession = Depends(get_db)
 ):
    
-    if days is not None and start_date is None:
-        start_date = datetime.now() - timedelta(days=days)
-    elif start_date is None:
+    if payload.days is not None and payload.start_date is None:
+        payload.start_date = datetime.now() - timedelta(days=payload.days)
+    elif payload.start_date is None:
         # Default to last 30 days if neither is provided
-        start_date = datetime.now() - timedelta(days=30)
+        payload.start_date = datetime.now() - timedelta(days=30)
 
-    expense_stmt = select(func.sum(ExpenseDB.amount).label("total")).where(ExpenseDB.date >= start_date)
+    expense_stmt = select(func.sum(ExpenseDB.amount).label("total")).where(ExpenseDB.date >= payload.start_date)
     
     # Apply category filter if provided
-    if category_name:
-        expense_stmt = expense_stmt.join(CategoryDB).filter(func.lower(CategoryDB.name) == category_name.lower())
+    if payload.category_name:
+        expense_stmt = expense_stmt.join(CategoryDB).filter(func.lower(CategoryDB.name) == payload.category_name.lower())
 
     result = await db.execute(expense_stmt)
     total = result.scalar() or 0.0
 
-    return {
-        "start_date": start_date,
-        "category": category_name,
-        "total_expenses": total
-    }
+    return total
