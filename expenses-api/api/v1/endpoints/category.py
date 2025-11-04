@@ -29,6 +29,7 @@ async def read_categories(skip: int = 0, limit: int = 100, db: AsyncSession = De
     categories_stmt = select(CategoryDB).offset(skip).limit(limit)
     result = await db.execute(categories_stmt)
     return result.scalars().all()
+
 @router.get("/{category_id}", response_model=Category, tags=["Categories"])
 async def read_category(category_id: int, db: AsyncSession = Depends(get_db)):
     category_stmt = select(CategoryDB).where(CategoryDB.id == category_id)
@@ -37,7 +38,6 @@ async def read_category(category_id: int, db: AsyncSession = Depends(get_db)):
     if db_category is None:
         raise HTTPException(status_code=404, detail="Category not found")
     return db_category
-
 
 @router.get("/name/{name}", response_model=Category, tags=["Categories"])
 async def read_category_by_name(name: str, db: AsyncSession = Depends(get_db)):

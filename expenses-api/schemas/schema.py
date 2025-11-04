@@ -33,8 +33,10 @@ class Expense(ExpenseBase):
 class ExpenseWithCategory(Expense):
   category: Category
 
-  class Config:
-    from_attributes = True
-
 class CategoryWithTotal(Category):
   total_expenses: float
+
+class ExpenseSince(BaseModel):
+  days: Optional[int]
+  start_date: Optional[datetime]
+  category_name: Optional[str]
