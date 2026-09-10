@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Expense Tracker | Assistant UI",
+  title: "ExpenseLog | Assistant UI",
   description: "Log your expenses, categorize them, and get reports.",
 };
 
