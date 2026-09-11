@@ -39,7 +39,9 @@ def llm_node(state: ExpensesAgentState) -> LangGraphNodeOutput:
     if _active_llm is None:
         raise RuntimeError("LLM not initialized — call set_active_llm() before using llm_node")
     logger.info(f"Input state messages: {state['messages']}")
-    system_message = SystemMessage(content=SYSTEM_PROMPT_TEMPLATE.format(today=_today_for_request()))
+    system_message = SystemMessage(
+        content=SYSTEM_PROMPT_TEMPLATE.format(today=_today_for_request())
+    )
     msgs = [system_message] + state["messages"]
     logger.info(f"Messages being sent to LLM: {msgs}")
     response = _active_llm.invoke(msgs)
