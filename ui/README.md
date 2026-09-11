@@ -42,13 +42,13 @@ npx auth secret
 ## 2. Install Dependencies
 
 ```bash
-npm install
+pnpm install
 ```
 
 ## 3. Start the Dev Server
 
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.

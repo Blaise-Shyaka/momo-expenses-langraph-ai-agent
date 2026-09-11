@@ -38,7 +38,7 @@ export default function RegisterPage() {
     <div
       style={{
         minHeight: "100vh",
-        backgroundColor: "#0a0a0a",
+        backgroundColor: "#ffffff",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -57,12 +57,12 @@ export default function RegisterPage() {
             style={{
               fontSize: "1.125rem",
               fontWeight: 500,
-              color: "#ffffff",
+              color: "#111827",
               marginBottom: "0.5rem",
               letterSpacing: "-0.01em",
             }}
           >
-            Expense Tracker
+            ExpenseLog
           </h1>
           <p style={{ fontSize: "0.8125rem", color: "#6b7280" }}>
             Create your account
@@ -71,8 +71,8 @@ export default function RegisterPage() {
 
         <div
           style={{
-            backgroundColor: "#111111",
-            border: "1px solid #1f1f1f",
+            backgroundColor: "#ffffff",
+            border: "1px solid #e5e7eb",
             borderRadius: "12px",
             padding: "2rem",
           }}
@@ -92,7 +92,7 @@ export default function RegisterPage() {
                   style={{
                     display: "block",
                     fontSize: "0.8125rem",
-                    color: "#9ca3af",
+                    color: "#374151",
                     marginBottom: "0.5rem",
                     fontWeight: 500,
                   }}
@@ -108,19 +108,19 @@ export default function RegisterPage() {
                   style={{
                     width: "100%",
                     padding: "0.625rem 0.875rem",
-                    backgroundColor: "#1a1a1a",
-                    border: "1px solid #2a2a2a",
+                    backgroundColor: "#ffffff",
+                    border: "1px solid #d1d5db",
                     borderRadius: "8px",
-                    color: "#ffffff",
+                    color: "#111827",
                     fontSize: "0.875rem",
                     outline: "none",
                     boxSizing: "border-box",
                   }}
                   onFocus={(e) => {
-                    e.currentTarget.style.border = "1px solid #404040";
+                    e.currentTarget.style.border = "1px solid #6b7280";
                   }}
                   onBlur={(e) => {
-                    e.currentTarget.style.border = "1px solid #2a2a2a";
+                    e.currentTarget.style.border = "1px solid #d1d5db";
                   }}
                 />
               </div>
@@ -130,7 +130,7 @@ export default function RegisterPage() {
                   style={{
                     display: "block",
                     fontSize: "0.8125rem",
-                    color: "#9ca3af",
+                    color: "#374151",
                     marginBottom: "0.5rem",
                     fontWeight: 500,
                   }}
@@ -146,19 +146,19 @@ export default function RegisterPage() {
                   style={{
                     width: "100%",
                     padding: "0.625rem 0.875rem",
-                    backgroundColor: "#1a1a1a",
-                    border: "1px solid #2a2a2a",
+                    backgroundColor: "#ffffff",
+                    border: "1px solid #d1d5db",
                     borderRadius: "8px",
-                    color: "#ffffff",
+                    color: "#111827",
                     fontSize: "0.875rem",
                     outline: "none",
                     boxSizing: "border-box",
                   }}
                   onFocus={(e) => {
-                    e.currentTarget.style.border = "1px solid #404040";
+                    e.currentTarget.style.border = "1px solid #6b7280";
                   }}
                   onBlur={(e) => {
-                    e.currentTarget.style.border = "1px solid #2a2a2a";
+                    e.currentTarget.style.border = "1px solid #d1d5db";
                   }}
                 />
               </div>
@@ -170,7 +170,7 @@ export default function RegisterPage() {
                 style={{
                   display: "block",
                   fontSize: "0.8125rem",
-                  color: "#9ca3af",
+                  color: "#374151",
                   marginBottom: "0.5rem",
                   fontWeight: 500,
                 }}
@@ -186,19 +186,19 @@ export default function RegisterPage() {
                 style={{
                   width: "100%",
                   padding: "0.625rem 0.875rem",
-                  backgroundColor: "#1a1a1a",
-                  border: "1px solid #2a2a2a",
+                  backgroundColor: "#ffffff",
+                  border: "1px solid #d1d5db",
                   borderRadius: "8px",
-                  color: "#ffffff",
+                  color: "#111827",
                   fontSize: "0.875rem",
                   outline: "none",
                   boxSizing: "border-box",
                 }}
                 onFocus={(e) => {
-                  e.currentTarget.style.border = "1px solid #404040";
+                  e.currentTarget.style.border = "1px solid #6b7280";
                 }}
                 onBlur={(e) => {
-                  e.currentTarget.style.border = "1px solid #2a2a2a";
+                  e.currentTarget.style.border = "1px solid #d1d5db";
                 }}
               />
             </div>
@@ -209,7 +209,7 @@ export default function RegisterPage() {
                 style={{
                   display: "block",
                   fontSize: "0.8125rem",
-                  color: "#9ca3af",
+                  color: "#374151",
                   marginBottom: "0.5rem",
                   fontWeight: 500,
                 }}
@@ -225,19 +225,19 @@ export default function RegisterPage() {
                 style={{
                   width: "100%",
                   padding: "0.625rem 0.875rem",
-                  backgroundColor: "#1a1a1a",
-                  border: "1px solid #2a2a2a",
+                  backgroundColor: "#ffffff",
+                  border: "1px solid #d1d5db",
                   borderRadius: "8px",
-                  color: "#ffffff",
+                  color: "#111827",
                   fontSize: "0.875rem",
                   outline: "none",
                   boxSizing: "border-box",
                 }}
                 onFocus={(e) => {
-                  e.currentTarget.style.border = "1px solid #404040";
+                  e.currentTarget.style.border = "1px solid #6b7280";
                 }}
                 onBlur={(e) => {
-                  e.currentTarget.style.border = "1px solid #2a2a2a";
+                  e.currentTarget.style.border = "1px solid #d1d5db";
                 }}
               />
             </div>
@@ -247,11 +247,11 @@ export default function RegisterPage() {
                 style={{
                   marginBottom: "1.25rem",
                   padding: "0.625rem 0.875rem",
-                  backgroundColor: "#1f0a0a",
-                  border: "1px solid #3a1010",
+                  backgroundColor: "#fef2f2",
+                  border: "1px solid #fecaca",
                   borderRadius: "8px",
                   fontSize: "0.8125rem",
-                  color: "#f87171",
+                  color: "#dc2626",
                 }}
               >
                 {state.error}
@@ -264,8 +264,8 @@ export default function RegisterPage() {
               style={{
                 width: "100%",
                 padding: "0.625rem",
-                backgroundColor: isPending ? "#2a2a2a" : "#ffffff",
-                color: isPending ? "#6b7280" : "#0a0a0a",
+                backgroundColor: isPending ? "#e5e7eb" : "#111827",
+                color: isPending ? "#9ca3af" : "#ffffff",
                 border: "none",
                 borderRadius: "8px",
                 fontSize: "0.875rem",
@@ -291,7 +291,7 @@ export default function RegisterPage() {
           Already have an account?{" "}
           <Link
             href="/login"
-            style={{ color: "#d1d5db", textDecoration: "none" }}
+            style={{ color: "#111827", textDecoration: "none" }}
           >
             Sign in
           </Link>
