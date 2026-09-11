@@ -4,7 +4,8 @@ import { getToken } from "next-auth/jwt";
 
 export default async function proxy(req: NextRequest) {
   const token = await getToken({ req, secret: process.env.AUTH_SECRET });
-  const isAuthenticated = !!token;
+  // A failed refresh (auth.ts's jwt callback) is functionally signed out.
+  const isAuthenticated = !!token && !token.error;
   const { pathname } = req.nextUrl;
   const isAuthPage =
     pathname.startsWith("/login") || pathname.startsWith("/register");

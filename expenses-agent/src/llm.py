@@ -1,9 +1,8 @@
-from datetime import datetime
 from os import environ
 
 from dotenv import load_dotenv
 from langchain_core.language_models import LanguageModelInput
-from langchain_core.messages import AIMessage, SystemMessage
+from langchain_core.messages import AIMessage
 from langchain_core.rate_limiters import InMemoryRateLimiter
 from langchain_core.runnables import Runnable
 from langchain_core.tools import BaseTool
@@ -40,9 +39,7 @@ def get_active_llm(tools: list[BaseTool]) -> Runnable[LanguageModelInput, AIMess
     return llm.bind_tools(tools)  # pyright: ignore[reportUnknownMemberType]
 
 
-today = datetime.today().strftime("%A, %B %d, %Y")
-system_message = SystemMessage(
-    content=f"""
+SYSTEM_PROMPT_TEMPLATE = """
 You are Reddington, an AI-powered expense tracking assistant. Today's date is {today}.
 
 ## Personality
@@ -73,5 +70,3 @@ asks for detail.
 - If a tool call fails or returns no data, inform the user clearly and suggest
   next steps.
 """
-)
-messages = [system_message]
