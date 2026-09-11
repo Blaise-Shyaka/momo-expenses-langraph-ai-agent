@@ -10,7 +10,7 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import StreamingResponse
 
 from src.auth import AuthError, verify_user_token
-from src.context import acting_user_ctx
+from src.context import acting_user_ctx, request_timezone_ctx
 from src.graph import make_graph
 
 _agent: LangGraphAGUIAgent | None = None  # type: ignore[misc]
@@ -42,6 +42,8 @@ async def agent_endpoint(input_data: RunAgentInput, request: Request) -> Streami
 
     input_data.thread_id = f"{user_id}:{input_data.thread_id}"
     input_data.forwarded_props = {**(input_data.forwarded_props or {}), "acting_user_id": user_id}
+    raw_timezone = (input_data.forwarded_props or {}).get("timezone")  # type: ignore[misc]
+    timezone = raw_timezone if isinstance(raw_timezone, str) else None
 
     accept_header = request.headers.get("accept") or ""
     encoder = EventEncoder(accept=accept_header)
@@ -52,12 +54,14 @@ async def agent_endpoint(input_data: RunAgentInput, request: Request) -> Streami
     agent = _agent
 
     async def event_generator() -> AsyncGenerator[str]:  # type: ignore[type-arg]
-        token_var = acting_user_ctx.set(user_id)
+        user_token = acting_user_ctx.set(user_id)
+        tz_token = request_timezone_ctx.set(timezone)
         try:
             async for event in agent.run(input_data):  # type: ignore[misc]
                 yield encoder.encode(event)  # type: ignore[arg-type]
         finally:
-            acting_user_ctx.reset(token_var)
+            acting_user_ctx.reset(user_token)
+            request_timezone_ctx.reset(tz_token)
 
     return StreamingResponse(event_generator(), media_type=encoder.get_content_type())
 

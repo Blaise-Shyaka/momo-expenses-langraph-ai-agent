@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 
 /**
@@ -18,19 +18,35 @@ import { useSession } from "next-auth/react";
 export function SessionRefresh() {
   const { data: session, status, update } = useSession();
   const accessTokenExpires = session?.accessTokenExpires;
+  const hasCheckedOnMount = useRef(false);
+
+  // update()'s identity changes on every session/loading change (next-auth
+  // internals) — depending on it directly re-arms these effects in a loop.
+  const updateRef = useRef(update);
+  useEffect(() => {
+    updateRef.current = update;
+  });
+
+  // The scheduled timer below dies if the tab was closed past expiry —
+  // check once on (re)visit instead of only trusting the carried-in session.
+  useEffect(() => {
+    if (status !== "authenticated" || hasCheckedOnMount.current) return;
+    hasCheckedOnMount.current = true;
+    updateRef.current();
+  }, [status]);
 
   useEffect(() => {
-    if (status !== "authenticated" || !accessTokenExpires) return;
+    if (!accessTokenExpires) return;
 
     const REFRESH_MARGIN_MS = 60 * 1000;
     const delay = Math.max(0, accessTokenExpires - Date.now() - REFRESH_MARGIN_MS);
 
     const timer = setTimeout(() => {
-      update();
+      updateRef.current();
     }, delay);
 
     return () => clearTimeout(timer);
-  }, [status, accessTokenExpires, update]);
+  }, [accessTokenExpires]);
 
   return null;
 }
