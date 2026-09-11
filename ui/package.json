@@ -16,6 +16,7 @@
     "@copilotkit/runtime": "^1.71.0",
     "next": "^16.2.10",
     "next-auth": "^4.24.15",
+    "openai": "^7.15.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7"
   },
@@ -27,7 +28,5 @@
     "eslint-config-next": "^16.2.10",
     "typescript": "^5"
   },
-  "overrides": {
-    "@copilotkit/runtime": "$@copilotkit/runtime"
-  }
+  "packageManager": "pnpm@11.22.0"
 }
